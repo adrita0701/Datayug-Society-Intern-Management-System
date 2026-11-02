@@ -1,0 +1,125 @@
+{
+  "admins": [
+    {
+      "_id": "6f16cf92a285ba50b22e4d20",
+      "email": "admin@datayugsociety.org",
+      "password": "$2a$10$7fUbzBVTZiIId8kTZvgDW.nJWHJO.RMcbII9pro4n8mjX1nmfayWG",
+      "createdAt": "2026-09-04T13:09:24.349Z",
+      "updatedAt": "2026-09-04T13:09:24.349Z"
+    }
+  ],
+  "interns": [
+    {
+      "_id": "344ee6f102d58cd7ce018318",
+      "fullName": "Riya",
+      "email": "cs22adri26@smcs.ac.in",
+      "phone": "+918256989540",
+      "college": "St. Mary's College",
+      "department": "Department of Computer Science",
+      "password": "$2a$10$UVdLS0QY36.F.xSeOZ5see30OHSFHqzsTsehvvEmNXNpzFO7AV9wK",
+      "createdAt": "2026-09-04T13:13:00.068Z",
+      "updatedAt": "2026-09-04T13:13:00.068Z"
+    },
+    {
+      "_id": "5bb24a701320e54e849182ba",
+      "fullName": "Adrita Bhattacharjee",
+      "email": "adritabhattacharjee07@gmail.com",
+      "phone": "+919862375330",
+      "college": "Tripura University",
+      "department": "Department of Computer Science",
+      "password": "$2a$10$DINwRigLHnrnRw/uPuBOjOi9xD3uq0.OiSNQF6oqkYgq51hxSjeB6",
+      "createdAt": "2026-09-07T17:03:13.642Z",
+      "updatedAt": "2026-09-07T17:03:13.642Z"
+    },
+    {
+      "_id": "55da03144e5e1ea217977445",
+      "fullName": "John Doe",
+      "email": "johndoe@gmail.com",
+      "phone": "9345678769",
+      "college": "St. Anthony's ",
+      "department": "Philosophy",
+      "password": "$2a$10$EYN17Kh0geHpBHO.kqHtqenZFV/./xMEpnZeawRdfHy.4Q0YScQpm",
+      "createdAt": "2026-10-30T14:41:22.925Z",
+      "updatedAt": "2026-10-30T14:41:22.925Z"
+    }
+  ],
+  "tasks": [
+    {
+      "_id": "c20251acc159babbc5984e4a",
+      "title": "Write an email to SP Cyber",
+      "description": "Write an email to SP Cyber Dheeraj Yadav for collaborating in online workshop.",
+      "deadline": "2026-09-04",
+      "status": "Completed",
+      "intern": "344ee6f102d58cd7ce018318",
+      "images": [],
+      "createdAt": "2026-09-04T13:55:59.572Z",
+      "updatedAt": "2026-09-06T13:00:12.451Z"
+    },
+    {
+      "_id": "97cb412503917abb270deede",
+      "title": "Make social media post",
+      "description": "make a social media post on digital arrest",
+      "deadline": "2026-09-08",
+      "status": "Completed",
+      "intern": "344ee6f102d58cd7ce018318",
+      "images": [],
+      "documents": [],
+      "submissionNote": "",
+      "createdAt": "2026-09-06T12:57:32.880Z",
+      "updatedAt": "2026-09-07T17:00:53.673Z"
+    },
+    {
+      "_id": "a8ec6955f5818ce5ff4d6eca",
+      "title": "Make social media post",
+      "description": "social media post on call centres",
+      "deadline": "2026-09-10",
+      "status": "Pending",
+      "intern": "344ee6f102d58cd7ce018318",
+      "images": [],
+      "documents": [],
+      "submissionNote": "",
+      "createdAt": "2026-09-06T13:04:09.893Z",
+      "updatedAt": "2026-09-06T13:04:09.893Z"
+    },
+    {
+      "_id": "c4527f8c8280676c732595e2",
+      "title": "Outreach",
+      "description": "Approach a school for an outreach programme",
+      "deadline": "2026-09-09",
+      "status": "Pending",
+      "intern": "344ee6f102d58cd7ce018318",
+      "images": [],
+      "documents": [],
+      "submissionNote": "",
+      "createdAt": "2026-09-07T16:59:29.080Z",
+      "updatedAt": "2026-09-07T16:59:29.081Z"
+    },
+    {
+      "_id": "34814bfa3961c760fbb1d46b",
+      "title": "Make social media post",
+      "description": "Make a post on cyber fraud",
+      "deadline": "2026-10-31",
+      "status": "Completed",
+      "intern": "55da03144e5e1ea217977445",
+      "images": [],
+      "documents": [],
+      "submissionNote": "",
+      "createdAt": "2026-10-30T14:45:28.402Z",
+      "updatedAt": "2026-10-30T14:48:12.552Z"
+    },
+    {
+      "_id": "a7ba2aaa86b71e92c9f0e608",
+      "title": "Make social media post",
+      "description": "make post on cyber fraud",
+      "deadline": "2026-10-31",
+      "status": "Completed",
+      "intern": "55da03144e5e1ea217977445",
+      "images": [],
+      "documents": [],
+      "submissionNote": "",
+      "createdAt": "2026-10-30T14:45:55.654Z",
+      "updatedAt": "2026-10-30T14:48:06.351Z"
+    }
+  ],
+  "documents": []
+}
