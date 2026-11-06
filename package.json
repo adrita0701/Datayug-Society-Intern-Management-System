@@ -1,16 +1,28 @@
 {
-  "name": "frontend",
+  "name": "datayug-intern-management",
   "private": true,
   "version": "0.0.0",
   "type": "module",
   "scripts": {
     "dev": "vite",
+    "dev:server": "node --watch server.js",
     "build": "vite build",
+    "start": "node server.js",
     "lint": "eslint .",
-    "preview": "vite preview"
+    "preview": "vite preview",
+    "test": "node test_endpoints.js",
+    "verify:db": "node verify_db.js"
   },
   "dependencies": {
+    "bcryptjs": "^3.0.3",
+    "cors": "^2.8.6",
+    "dotenv": "^18.0.9",
+    "express": "^5.3.0",
+    "jsonwebtoken": "^9.0.3",
     "lucide-react": "^1.22.0",
+    "mongodb": "^7.8.0",
+    "multer": "^2.5.0",
+    "pg": "^8.23.1",
     "react": "^18.3.1",
     "react-dom": "^18.3.1",
     "react-router-dom": "^7.18.1"
@@ -30,5 +42,8 @@
     "postcss": "^8.5.16",
     "tailwindcss": "^4.3.2",
     "vite": "^5.4.10"
+  },
+  "engines": {
+    "node": ">=20"
   }
 }

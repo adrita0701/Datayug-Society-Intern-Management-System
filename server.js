@@ -1,66 +1,88 @@
-const express = require('express');
-const mongoose = require('mongoose');
-const cors = require('cors');
-const path = require('path');
-const fs = require('fs');
-require('dotenv').config();
+import 'dotenv/config';
+import express from 'express';
+import cors from 'cors';
+import path from 'path';
+import fs from 'fs';
+import { fileURLToPath } from 'url';
+import multer from 'multer';
+import { connectStore } from './backend/store.js';
+import adminRoutes from './backend/routes/adminRoutes.js';
+import internRoutes from './backend/routes/internRoutes.js';
+import { fileRoutes, MAX_FILE_MB } from './backend/files.js';
 
-const adminRoutes = require('./routes/adminRoutes');
-const internRoutes = require('./routes/internRoutes');
+const __dirname = path.dirname(fileURLToPath(import.meta.url));
 
-const app = express();
+export async function createApp(store) {
+  const app = express();
+  app.disable('x-powered-by');
+  app.set('trust proxy', 1);
 
-// Middlewares
-app.use(cors({
-  origin: '*', // In production, restrict to frontend URL
-  credentials: true
-}));
-app.use(express.json());
+  // The frontend is served from this same server, so CORS is only needed when
+  // the UI is hosted elsewhere. Set CORS_ORIGIN to a comma-separated list.
+  const origins = (process.env.CORS_ORIGIN || '').split(',').map((s) => s.trim()).filter(Boolean);
+  if (origins.length) app.use(cors({ origin: origins }));
+  app.use(express.json({ limit: '1mb' }));
 
-// Ensure uploads folder exists
-const uploadsPath = path.join(__dirname, 'uploads');
-if (!fs.existsSync(uploadsPath)) {
-  fs.mkdirSync(uploadsPath, { recursive: true });
+  const api = express.Router();
+  api.get('/health', (_req, res) => res.json({ status: 'ok', databaseMode: store.mode }));
+  api.use('/admin', adminRoutes(store));
+  api.use('/intern', internRoutes(store));
+  api.use('/files', fileRoutes(store));
+  api.use((_req, res) => res.status(404).json({ message: 'Not found' }));
+
+  // Supports both direct (/api) and subpath (/interns/api) deployments.
+  app.use('/api', api);
+  app.use('/interns/api', api);
+
+  // Built React app (npm run build → dist/)
+  const dist = path.join(__dirname, 'dist');
+  if (fs.existsSync(dist)) {
+    const index = path.join(dist, 'index.html');
+    for (const base of ['/interns', '/']) {
+      app.use(base, express.static(dist, { index: false, maxAge: '1h' }));
+    }
+    app.get(/.*/, (_req, res) => res.sendFile(index));
+  } else {
+    app.get('/', (_req, res) => res.json({
+      message: 'Internship Management System API is running',
+      databaseMode: store.mode,
+    }));
+  }
+
+  // Errors
+  app.use((err, _req, res, _next) => {
+    if (err instanceof multer.MulterError) {
+      const msg = err.code === 'LIMIT_FILE_SIZE' ? `Each file must be ${MAX_FILE_MB} MB or smaller` : err.message;
+      return res.status(400).json({ message: msg });
+    }
+    if (err.type === 'entity.parse.failed') return res.status(400).json({ message: 'Invalid JSON body' });
+    console.error(err);
+    res.status(500).json({ message: 'Something went wrong on the server' });
+  });
+
+  return app;
 }
 
-// Static Route for Uploaded Images & Documents (Supports direct and /interns subpath)
-app.use('/uploads', express.static(uploadsPath));
-app.use('/interns/uploads', express.static(uploadsPath));
+// Optional recovery: ADMIN_EMAIL + ADMIN_PASSWORD (re)sets the single admin
+// account at startup. Remove the variables afterwards if you prefer.
+async function ensureAdminFromEnv(store) {
+  const email = process.env.ADMIN_EMAIL?.trim().toLowerCase();
+  const password = process.env.ADMIN_PASSWORD;
+  if (!email || !password) return;
+  const { default: bcrypt } = await import('bcryptjs');
+  const admin = (await store.one('admins', { email })) || (await store.all('admins'))[0];
+  if (admin && (await bcrypt.compare(password, admin.password)) && admin.email === email) return;
+  const hash = await bcrypt.hash(password, 10);
+  if (admin) await store.update('admins', admin._id, { email, password: hash });
+  else await store.insert('admins', { email, password: hash });
+  console.log(`🔑 Admin account set from ADMIN_EMAIL (${email}).`);
+}
 
-// Routes (Supports direct, root, and /interns subpath proxying)
-app.use('/api/admin', adminRoutes);
-app.use('/api/intern', internRoutes);
-app.use('/interns/api/admin', adminRoutes);
-app.use('/interns/api/intern', internRoutes);
-
-// Root route for server verification
-app.get('/', (req, res) => {
-  res.json({
-    message: 'Internship Management System API is running',
-    databaseMode: global.USE_LOCAL_DB ? 'Embedded Local JSON Database' : 'MongoDB'
-  });
-});
-
-// Port and DB Connection
-const PORT = process.env.PORT || 5000;
-const MONGO_URI = process.env.MONGO_URI || 'mongodb://127.0.0.1:27017/intern_management';
-
-// Connect with a 2-second timeout. If MongoDB is not installed/running, fallback to local JSON database instantly!
-mongoose.connect(MONGO_URI, { serverSelectionTimeoutMS: 2000 })
-  .then(() => {
-    console.log('✅ MongoDB connected successfully.');
-    app.listen(PORT, () => {
-      console.log(`🚀 Server running on port ${PORT} [MongoDB Mode]`);
-    });
-  })
-  .catch(err => {
-    global.USE_LOCAL_DB = true;
-    console.log('\n=============================================================');
-    console.log('⚡ FAST STARTUP: MongoDB is offline or not installed.');
-    console.log('⚡ Automatically activated Embedded Local JSON Database.');
-    console.log('📁 Data will persist seamlessly in: backend/data.json');
-    console.log('=============================================================\n');
-    app.listen(PORT, () => {
-      console.log(`🚀 Server running on port ${PORT} [Fast Embedded DB Mode]`);
-    });
-  });
+const isMain =process.argv[1] && path.resolve(process.argv[1]) === fileURLToPath(import.meta.url);
+if (isMain) {
+  const store = await connectStore();
+  await ensureAdminFromEnv(store);
+  const app = await createApp(store);
+  const PORT = process.env.PORT || 5000;
+  app.listen(PORT, () => console.log(`🚀 Server running on port ${PORT} [${store.mode}]`));
+}
